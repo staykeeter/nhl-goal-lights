@@ -1,39 +1,37 @@
-import logging
-from homeassistant.core import HomeAssistant
-from .const import DOMAIN
-from .coordinator import NHLCoordinator
+"""NHL Goal Lights integration."""
 
-_LOGGER = logging.getLogger(__name__)
-COORDINATORS = {}
+from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
+
+DOMAIN = "nhl_goal_lights"
+
 
 async def async_setup(hass: HomeAssistant, config: dict):
-    """YAML setup not used; return True for compatibility."""
+    """Set up the integration via YAML (not used, but required)."""
     return True
 
-async def async_setup_entry(hass: HomeAssistant, entry):
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up NHL Goal Lights from a config entry."""
-    monitor_teams = entry.data.get("monitor_teams", [])
-    all_games = entry.data.get("all_games", True)
-    wled_devices = entry.data.get("wled_devices", [])
 
-    _LOGGER.info(
-        "Setting up NHL Goal Lights: teams=%s, all_games=%s, wled_devices=%s",
-        monitor_teams, all_games, wled_devices
-    )
+    # Store entry data if needed
+    hass.data.setdefault(DOMAIN, {})
+    hass.data[DOMAIN][entry.entry_id] = entry.data
 
-    coordinator = NHLCoordinator(hass, monitor_teams, all_games, wled_devices)
-    await coordinator.async_initialize()
-    COORDINATORS[entry.entry_id] = coordinator
+    # Forward to platforms (like sensors)
+    # NOTE: Replace "sensor" with your actual platform(s) if you add them later
+    await hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
 
-    # Forward to sensor platform if needed
-    hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(entry, "sensor")
-    )
     return True
 
-async def async_unload_entry(hass: HomeAssistant, entry):
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Unload a config entry."""
-    coordinator = COORDINATORS.pop(entry.entry_id, None)
-    if coordinator:
-        await coordinator.async_shutdown()
-    return True
+
+    # Unload platforms
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, ["sensor"])
+
+    if unload_ok:
+        hass.data[DOMAIN].pop(entry.entry_id, None)
+
+    return unload_ok
