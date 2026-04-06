@@ -45,8 +45,21 @@ class NHLGameSensor(Entity):
         self.wled_devices = entry.data.get("wled_devices", [])
 
     @property
-    def state(self):
-        return self._state
+def extra_state_attributes(self):
+    """Return attributes for Lovelace display."""
+    attrs = {}
+    for game_pk, info in self._state.items():
+        attrs[game_pk] = {
+            "home_team": info.get("home_team"),
+            "away_team": info.get("away_team"),
+            "home_score": info.get("home"),
+            "away_score": info.get("away"),
+            "period": info.get("period"),
+            "time_remaining": info.get("time_remaining"),
+            "shots_on_goal": info.get("shots"),
+            "power_play": info.get("power_play")
+        }
+    return attrs
 
     async def periodic_update(self):
         """Periodically poll NHL API."""
