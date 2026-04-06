@@ -1,9 +1,15 @@
 from homeassistant import config_entries
-import voluptuous as vol
+from homeassistant.helpers import selector
 from .const import DOMAIN
 
+NHL_TEAMS = [
+    "ANA","ARI","BOS","BUF","CGY","CAR","CHI","COL","CBJ","DAL",
+    "DET","EDM","FLA","LAK","MIN","MTL","NSH","NJD","NYI","NYR",
+    "OTT","PHI","PIT","SJS","SEA","STL","TBL","TOR","VAN","VGK","WSH"
+]
+
 class NHLGoalLightsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Working config flow."""
+    """Config flow for NHL Goal Lights."""
 
     VERSION = 1
 
@@ -12,17 +18,28 @@ class NHLGoalLightsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_create_entry(
                 title="NHL Goal Lights",
                 data={
+                    "monitor_teams": user_input.get("monitor_teams", []),
                     "all_games": user_input.get("all_games", True),
-                    "wled_devices": user_input.get("wled_devices", "")
+                    "wled_devices": user_input.get("wled_devices", [])
                 }
             )
 
-        schema = vol.Schema({
-            vol.Optional("all_games", default=True): bool,
-            vol.Optional("wled_devices", default="light.wled_tv"): str,
-        })
-
         return self.async_show_form(
             step_id="user",
-            data_schema=schema
+            data_schema={
+                "monitor_teams": selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=NHL_TEAMS,
+                        multiple=True,
+                        mode="dropdown"
+                    )
+                ),
+                "all_games": selector.BooleanSelector(),
+                "wled_devices": selector.EntitySelector(
+                    selector.EntitySelectorConfig(
+                        domain="light",
+                        multiple=True
+                    )
+                ),
+            },
         )
