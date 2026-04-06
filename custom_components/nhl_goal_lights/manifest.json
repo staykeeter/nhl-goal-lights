@@ -1,11 +1,10 @@
 {
   "domain": "nhl_goal_lights",
-  "name": "NHL Goal Lights Pro",
-  "version": "3.0.0",
-  "documentation": "https://github.com/staykeeter/nhl-goal-lights",
+  "name": "NHL Goal Lights",
+  "version": "1.0.0",
+  "config_flow": true,
+  "requirements": ["requests"],
   "dependencies": [],
-  "codeowners": ["@staykeeter"],
-  "requirements": [],
-  "iot_class": "cloud_polling",
-  "config_flow": true
+  "codeowners": [],
+  "iot_class": "cloud_polling"
 }
