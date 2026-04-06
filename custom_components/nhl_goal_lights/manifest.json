@@ -2,9 +2,9 @@
   "domain": "nhl_goal_lights",
   "name": "NHL Goal Lights",
   "version": "1.0.0",
-  "config_flow": true,
-  "requirements": ["requests"],
+  "documentation": "https://github.com/yourusername/nhl_goal_lights",
   "dependencies": [],
-  "codeowners": [],
+  "requirements": ["requests>=2.30.0"],
+  "codeowners": ["@yourusername"],
   "iot_class": "cloud_polling"
 }
