@@ -1,33 +1,46 @@
-from .coordinator import NHLCoordinator
-from .game_state import GameState
-from .event_router import handle_event
-from .wled_engine import apply_effect
-from .storage import DeviceStore
+import logging
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_entry_flow
+from homeassistant.helpers.typing import ConfigType
 from .const import DOMAIN
+from .coordinator import NHLCoordinator
 
-async def async_setup_entry(hass, entry):
-    coord = NHLCoordinator(hass)
-    await coord.async_config_entry_first_refresh()
+_LOGGER = logging.getLogger(__name__)
 
-    state = GameState()
-    store = DeviceStore(hass)
-    await store.load()
+# Store coordinators for each config entry
+COORDINATORS = {}
 
-    hass.data[DOMAIN] = {
-        "coord": coord,
-        "state": state,
-        "store": store,
-    }
+async def async_setup(hass: HomeAssistant, config: ConfigType):
+    """Set up the integration via YAML (optional, mostly for legacy)."""
+    return True  # We use config_flow, so nothing needed here
 
-    async def loop(now):
-        games = coord.data
-        events = state.update(games)
+async def async_setup_entry(hass: HomeAssistant, entry):
+    """Set up NHL Goal Lights from a config entry."""
+    # Get config from UI form
+    monitor_teams = entry.data.get("monitor_teams", [])
+    all_games = entry.data.get("all_games", True)
+    wled_devices = entry.data.get("wled_devices", [])
 
-        devices = list(store.data.keys())
+    # Log what we got
+    _LOGGER.info("NHL Goal Lights setup: monitor_teams=%s, all_games=%s, wled_devices=%s",
+                 monitor_teams, all_games, wled_devices)
 
-        for e in events:
-            await handle_event(hass, e, devices, apply_effect)
+    # Create a coordinator for polling NHL data & managing WLED effects
+    coordinator = NHLCoordinator(hass, monitor_teams, all_games, wled_devices)
+    await coordinator.async_initialize()
 
-    hass.helpers.event.async_track_time_interval(loop, 10)
+    # Save coordinator for later
+    COORDINATORS[entry.entry_id] = coordinator
 
+    # Forward to platforms (if any sensors/lights are created)
+    hass.async_create_task(
+        hass.config_entries.async_forward_entry_setup(entry, "sensor")
+    )
+    return True
+
+async def async_unload_entry(hass: HomeAssistant, entry):
+    """Unload a config entry."""
+    coordinator = COORDINATORS.pop(entry.entry_id, None)
+    if coordinator:
+        await coordinator.async_shutdown()
     return True
