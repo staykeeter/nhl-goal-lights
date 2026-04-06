@@ -3,7 +3,7 @@
   "name": "NHL Goal Lights",
   "version": "1.0.0",
   "config_flow": true,
-  "requirements": ["requests"],
+  "requirements": ["requests"],  
   "dependencies": [],
   "codeowners": [],
   "iot_class": "cloud_polling"
