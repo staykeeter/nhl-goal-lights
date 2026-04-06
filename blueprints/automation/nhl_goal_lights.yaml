@@ -1,0 +1,10 @@
+blueprint:
+  name: NHL Goal Lights Pro
+  domain: automation
+
+trigger:
+  - platform: time_pattern
+    seconds: "/10"
+
+action:
+  - service: nhl_goal_lights.refresh
