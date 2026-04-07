@@ -1,0 +1,16 @@
+type: vertical-stack
+cards:
+  - type: entities
+    title: NHL Game
+    entities:
+      - entity: sensor.nhl_tor_mtl
+        name: Game Score
+      - entity: sensor.nhl_tor_mtl
+        attribute: shots
+        name: Shots on Goal
+      - entity: sensor.nhl_tor_mtl
+        attribute: period
+        name: Period
+      - entity: sensor.nhl_tor_mtl
+        attribute: time_remaining
+        name: Time Remaining

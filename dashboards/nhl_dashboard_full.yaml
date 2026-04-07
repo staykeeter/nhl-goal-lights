@@ -1,0 +1,16 @@
+title: NHL Scoreboard
+views:
+  - title: Live Games
+    path: nhl_live
+    panel: true
+    cards:
+      - type: custom:horizontal-stack
+        cards:
+          - type: entities
+            title: Toronto @ Montreal
+            entities:
+              - entity: sensor.nhl_tor_mtl
+          - type: entities
+            title: Boston @ New York
+            entities:
+              - entity: sensor.nhl_bos_nyr
