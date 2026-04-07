@@ -1,6 +1,0 @@
-{
-  "name": "NHL Goal Lights Pro",
-  "domains": ["nhl_goal_lights"],
-  "homeassistant": "2024.1.0",
-  "iot_class": "cloud_polling"
-}
